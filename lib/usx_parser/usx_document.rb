@@ -51,13 +51,13 @@ module UsxParser
       str = string.gsub('¶', '')
       case @current_tag
       when 'verse'
-        @verse_text += str unless @verse_end
+        @verse_text += str.gsub(/\s{2,}/, ' ').strip unless @verse_end
       when 'char'
         return if @current_style =~ /^(f|x).*/i
         if @current_style&.strip.nil?
-          @verse_text += str
+          @verse_text += str.gsub(/\s{2,}/, ' ').strip
         else
-          @verse_text += "<span class=\"#{@current_style}\">#{str}</span>"
+          @verse_text += "<span class=\"#{@current_style}\">#{str.gsub(/\s{2,}/, ' ').strip}</span>"
         end
       end
     end
