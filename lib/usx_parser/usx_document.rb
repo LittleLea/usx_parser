@@ -1,21 +1,33 @@
 module UsxParser
   class UsxDocument < Nokogiri::XML::SAX::Document
+    attr_accessor :verbose
+
+    def initialize(verbose: false)
+      self.verbose = verbose
+    end
+
     def start_document
       @usx_version = nil
+      @elements = []
       @current_tag = nil
       @current_style = nil
+      @para_style = nil
       @styles = {}
       @book = nil
       @chapter_number = nil
       @verse = nil
       @verse_end = false
       @verse_text = ""
+      @in_note = false
       @verses = []
     end
 
     def start_element(name, attrs = [])
+      puts "start_element: #{name}, (attrs: #{attrs})" if verbose
       attrs = attrs.to_h
       @current_tag = name
+
+      @elements.push(name)
 
       case name
       when 'usx'
@@ -28,6 +40,7 @@ module UsxParser
         @styles[name] ||= {}
         @styles[name][@current_style] ||= 0
         @styles[name][@current_style] += 1
+        @para_style = attrs['style'] if name == 'para'
       when 'chapter'
         @chapter_number = attrs['number']
       when 'verse'
@@ -48,10 +61,16 @@ module UsxParser
     end
 
     def characters(string)
+      puts "characters: #{string} - elements: #{@elements} - para style: #{@para_style}" if verbose
+
       str = string.gsub('¶', '')
+      @current_tag = @elements[-1]
+
       case @current_tag
       when 'verse'
         @verse_text += str unless @verse_end
+      when 'para'
+        @verse_text += str unless title_or_heading?(@para_style)
       when 'char'
         return if @current_style =~ /^(f|x).*/i
         if @current_style&.strip.nil?
@@ -63,10 +82,15 @@ module UsxParser
     end
 
     def end_element(name)
-      @current_style = nil
+      @elements.pop
+
+      @para_style = nil if name == 'para'
+
+      puts "end_element: #{name}" if verbose
     end
 
     def end_document
+      puts "end_document" if verbose
       if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil?
         @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
         @verses << @verse.to_h
@@ -75,6 +99,23 @@ module UsxParser
 
     def verses
       return @verses
+    end
+
+    private
+
+    def title_or_heading?(tag_name)
+      case tag_name
+      when /^mt/
+        true
+      when /^ms/
+        true
+      when /^s/
+        true
+      when 'cl', 'cd', 'r', 'd'
+        true
+      else
+        false
+      end
     end
   end
 end
