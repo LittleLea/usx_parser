@@ -87,7 +87,10 @@ module UsxParser
     def end_element(name)
       @elements.pop
 
-      @para_style = nil if name == 'para'
+      if name == 'para'
+        @para_style = nil
+        @verse_text += " "
+      end
 
       puts "end_element: #{name}" if verbose
     end
