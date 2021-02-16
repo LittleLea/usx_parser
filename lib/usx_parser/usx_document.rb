@@ -33,11 +33,11 @@ module UsxParser
       when 'verse'
         if @usx_version == '3.0' && attrs['eid'] != nil
           @verse_end = true
-          @verse.text = @verse_text
+          @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
           @verses << @verse.to_h
         else
           if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil?
-            @verse.text = @verse_text
+            @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
             @verses << @verse.to_h
           end
           @verse_text = ''
@@ -51,13 +51,13 @@ module UsxParser
       str = string.gsub('¶', '')
       case @current_tag
       when 'verse'
-        @verse_text += str.gsub(/\s{2,}/, ' ').strip unless @verse_end
+        @verse_text += str unless @verse_end
       when 'char'
         return if @current_style =~ /^(f|x).*/i
         if @current_style&.strip.nil?
-          @verse_text += str.gsub(/\s{2,}/, ' ').strip
+          @verse_text += str
         else
-          @verse_text += "<span class=\"#{@current_style}\">#{str.gsub(/\s{2,}/, ' ').strip}</span>"
+          @verse_text += "<span class=\"#{@current_style}\">#{str}</span>"
         end
       end
     end
@@ -68,7 +68,7 @@ module UsxParser
 
     def end_document
       if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil?
-        @verse.text = @verse_text.strip
+        @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
         @verses << @verse.to_h
       end
     end
