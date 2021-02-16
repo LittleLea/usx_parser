@@ -34,7 +34,7 @@ module UsxParser
         @usx_version = attrs['version']
       when 'book'
         @book = UsxParser::Book.find_by_code(attrs['code'])
-        raise UsxParser::Error, "BookNotFound" if @book.nil?
+        raise UsxParser::Error, "Book not found" if @book.nil?
       when 'para', 'char'
         @current_style = attrs['style']
         @styles[name] ||= {}
@@ -56,7 +56,7 @@ module UsxParser
           @verse_text = ''
           @verse_end = false
           @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book)
-          raise UsxParser::Error, "MoreThanOneVerse: #{@verse.position} / #{attrs['number']}" if @verse.verse_number.to_s != attrs['number']
+          raise UsxParser::Error, "More than one verse: #{@verse.position} / #{attrs['number']}" if @verse.verse_number.to_s != attrs['number']
         end
       end
     end
