@@ -56,6 +56,7 @@ module UsxParser
           @verse_text = ''
           @verse_end = false
           @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book)
+          raise UsxParser::Error, "MoreThanOneVerse: #{@verse.position} / #{attrs['number']}" if @verse.verse_number.to_s != attrs['number']
         end
       end
     end

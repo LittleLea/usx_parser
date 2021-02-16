@@ -15,8 +15,12 @@ module UsxParser
         scripture_chapter: chapter_number,
         scripture_verse: verse_number,
         text: text,
-        position: "#{book.name} #{chapter_number}:#{verse_number}"
+        position: position
       }
+    end
+
+    def position
+      "#{book.name} #{chapter_number}:#{verse_number}"
     end
   end
 end
