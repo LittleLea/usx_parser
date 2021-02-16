@@ -48,7 +48,7 @@ module UsxParser
     end
 
     def characters(string)
-      str = string.gsub('¶', '').strip
+      str = string.gsub('¶', '')
       case @current_tag
       when 'verse'
         @verse_text += str unless @verse_end
