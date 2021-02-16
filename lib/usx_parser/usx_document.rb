@@ -73,6 +73,8 @@ module UsxParser
         @verse_text += str unless title_or_heading?(@para_style)
       when 'char'
         return if @current_style =~ /^(f|x).*/i
+        return if @elements.include?('note')
+
         if @current_style&.strip.nil?
           @verse_text += str
         else
