@@ -50,9 +50,6 @@ module UsxParser
         @verse_end = false
 
         @chapter_number = attrs['number']
-        @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book)
-
-        raise UsxParser::Error, "More than one verse: #{@verse.position} / #{attrs['number']}" if @verse.verse_number.to_s != attrs['number']
       when 'verse'
         if @usx_version == '3.0' && attrs['eid'] != nil
           @verse_end = true
