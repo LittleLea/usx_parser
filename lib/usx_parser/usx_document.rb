@@ -48,6 +48,7 @@ module UsxParser
         end
         @verse_text = ''
         @verse_end = false
+        @verse = nil
 
         @chapter_number = attrs['number']
       when 'verse'
@@ -56,7 +57,7 @@ module UsxParser
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
           @verses << @verse.to_h
         else
-          if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil?
+          if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
             @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
             @verses << @verse.to_h
           end
