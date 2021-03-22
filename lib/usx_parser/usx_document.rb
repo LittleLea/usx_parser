@@ -42,7 +42,17 @@ module UsxParser
         @styles[name][@current_style] += 1
         @para_style = attrs['style'] if name == 'para'
       when 'chapter'
+        if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
+          @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
+          @verses << @verse.to_h
+        end
+        @verse_text = ''
+        @verse_end = false
+
         @chapter_number = attrs['number']
+        @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book)
+
+        raise UsxParser::Error, "More than one verse: #{@verse.position} / #{attrs['number']}" if @verse.verse_number.to_s != attrs['number']
       when 'verse'
         if @usx_version == '3.0' && attrs['eid'] != nil
           @verse_end = true
