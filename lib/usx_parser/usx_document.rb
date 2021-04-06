@@ -20,6 +20,7 @@ module UsxParser
       @verse_text = ""
       @in_note = false
       @verses = []
+      @cell_align = nil
     end
 
     def start_element(name, attrs = [])
@@ -41,6 +42,8 @@ module UsxParser
         @styles[name][@current_style] ||= 0
         @styles[name][@current_style] += 1
         @para_style = attrs['style'] if name == 'para'
+      when 'cell'
+        @cell_align = attrs['align']
       when 'chapter'
         if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
@@ -78,6 +81,17 @@ module UsxParser
       case @current_tag
       when 'verse'
         @verse_text += str unless @verse_end
+      when 'cell'
+        @verse_text += str.strip
+        if @cell_align == 'end'
+          @verse_text += "; "
+        elsif str.strip != ""
+          if str.strip[-1] != ","
+            @verse_text += ", "
+          else
+            @verse_text += " "
+          end
+        end
       when 'para'
         @verse_text += str unless title_or_heading?(@para_style)
       when 'char'
@@ -97,6 +111,9 @@ module UsxParser
 
       if name == 'para'
         @para_style = nil
+        @verse_text += " "
+      elsif name == 'cell'
+        @cell_align = nil
         @verse_text += " "
       end
 
