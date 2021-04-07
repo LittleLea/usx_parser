@@ -45,7 +45,7 @@ module UsxParser
       when 'cell'
         @cell_align = attrs['align']
       when 'chapter'
-        if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
+        if !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
           @verses << @verse.to_h
         end
@@ -55,7 +55,7 @@ module UsxParser
 
         @chapter_number = attrs['number']
       when 'verse'
-        if @usx_version == '3.0' && attrs['eid'] != nil
+        if @usx_version == '3.0' && attrs['eid'] != nil && @verse != nil
           @verse_end = true
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
           @verses << @verse.to_h
@@ -67,7 +67,7 @@ module UsxParser
           @verse_text = ''
           @verse_end = false
           @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book)
-          raise UsxParser::Error, "More than one verse: #{@verse.position} / #{attrs['number']}" if @verse.verse_number.to_s != attrs['number']
+          raise UsxParser::Error, "More than one verse: #{@verse.position} / #{attrs['number']}" if attrs['number'] != nil && @verse.verse_number.to_s != attrs['number']
         end
       end
     end
@@ -84,12 +84,12 @@ module UsxParser
       when 'cell'
         @verse_text += str.strip
         if @cell_align == 'end'
-          @verse_text += "; "
+          @verse_text += "; " unless str.strip[-1] =~ %r{\W$}
         elsif str.strip != ""
-          if str.strip[-1] != ","
-            @verse_text += ", "
-          else
+          if str.strip[-1] =~ %r{\W$}
             @verse_text += " "
+          else
+            @verse_text += ", "
           end
         end
       when 'para'
