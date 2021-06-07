@@ -1,13 +1,13 @@
 PATH
   remote: .
   specs:
-    usx_parser (0.1.0)
+    usx_parser (0.1.5.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    mini_portile2 (2.5.0)
-    nokogiri (1.11.1)
+    mini_portile2 (2.5.3)
+    nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     racc (1.5.2)
@@ -17,7 +17,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  nokogiri (~> 1.11)
+  nokogiri (~> 1.11, >= 1.11.4)
   rake (~> 12.0)
   usx_parser!
 
