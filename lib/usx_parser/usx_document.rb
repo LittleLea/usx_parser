@@ -13,7 +13,9 @@ module UsxParser
       @current_style = nil
       @para_style = nil
       @styles = {}
+      @book_name = nil
       @book = nil
+      @chapters = []
       @chapter_number = nil
       @verse = nil
       @verse_end = false
@@ -35,7 +37,7 @@ module UsxParser
         @usx_version = attrs['version']
       when 'book'
         @book = UsxParser::Book.find_by_code(attrs['code'])
-        raise UsxParser::Error, "Book not found" if @book.nil?
+        @book_name = ""
       when 'para', 'char'
         @current_style = attrs['style']
         @styles[name] ||= {}
@@ -47,7 +49,8 @@ module UsxParser
       when 'chapter'
         if !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
-          @verses << @verse.to_h
+          @verses << @verse.to_h if @verses.select{ |v| v[:position] == @verse.position }.empty?
+          @chapters << "#{@book_name} #{@chapter_number}"
         end
         @verse_text = ''
         @verse_end = false
@@ -58,16 +61,15 @@ module UsxParser
         if @usx_version == '3.0' && attrs['eid'] != nil && @verse != nil
           @verse_end = true
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
-          @verses << @verse.to_h
+          @verses << @verse.to_h if @verses.select{ |v| v[:position] == @verse.position }.empty?
         else
           if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
             @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
-            @verses << @verse.to_h
+            @verses << @verse.to_h if @verses.select{ |v| v[:position] == @verse.position }.empty?
           end
           @verse_text = ''
           @verse_end = false
-          @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book)
-          raise UsxParser::Error, "More than one verse: #{@verse.position} / #{attrs['number']}" if attrs['number'] != nil && @verse.verse_number.to_s != attrs['number']
+          @verse = UsxParser::Verse.new(chapter_number: @chapter_number, verse_number: attrs['number'], book: @book, book_name: @book_name)
         end
       end
     end
@@ -94,6 +96,7 @@ module UsxParser
         end
       when 'para'
         @verse_text += str unless title_or_heading?(@para_style)
+        @book_name += str if @para_style == 'toc2'
       when 'char'
         return if @current_style =~ /^(f|x).*/i
         return if @elements.include?('note')
@@ -124,12 +127,16 @@ module UsxParser
       puts "end_document" if verbose
       if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil?
         @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
-        @verses << @verse.to_h
+        @verses << @verse.to_h if @verses.select{ |v| v[:position] == @verse.position }.empty?
       end
     end
 
     def verses
       return @verses
+    end
+
+    def chapters
+      return @chapters
     end
 
     private
