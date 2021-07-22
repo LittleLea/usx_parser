@@ -50,7 +50,7 @@ module UsxParser
         if !@chapter_number.nil? && !@verse&.verse_number.nil? && @verse_text != nil && @verse_text != ''
           @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
           @verses << @verse.to_h if @verses.select{ |v| v[:position] == @verse.position }.empty?
-          @chapters << { book_name: @book_name, chapter_number: @chapter_number }
+          @chapters << { book_name: @book_name, chapter_number: @chapter_number, categories: @book&.categories }
         end
         @verse_text = ''
         @verse_end = false
