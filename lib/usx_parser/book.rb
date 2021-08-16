@@ -319,6 +319,9 @@ module UsxParser
       when 'MAN'
         @name = 'Manasseh'
         @categories = [:apocryphal]
+      when 'LJE'
+        @name = 'Letter of Jeremiah'
+        @categories = [:deuterocanonical, :apocryphal]
       else
         return nil
       end
