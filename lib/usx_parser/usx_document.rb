@@ -128,6 +128,7 @@ module UsxParser
       if @usx_version != '3.0' && !@chapter_number.nil? && !@verse&.verse_number.nil?
         @verse.text = @verse_text.gsub(/\s{2,}/, ' ').strip
         @verses << @verse.to_h if @verses.select{ |v| v[:position] == @verse.position }.empty?
+        @chapters << { book_name: book_name, chapter_number: @chapter_number, categories: @book&.categories }
       end
     end
 
