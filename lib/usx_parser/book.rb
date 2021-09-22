@@ -310,6 +310,12 @@ module UsxParser
       when '2MA'
         @name = '2 Maccabees'
         @categories = [:deuterocanonical, :apocryphal]
+      when '3MA'
+        @name = '3 Maccabees'
+        @categories = [:deuterocanonical, :apocryphal]
+      when '4MA'
+        @name = '4 Maccabees'
+        @categories = [:deuterocanonical, :apocryphal]
       when '1ES'
         @name = '1 Esdras'
         @categories = [:apocryphal]
