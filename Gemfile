@@ -4,4 +4,4 @@ source "https://rubygems.org"
 gemspec
 
 gem "rake", "~> 12.0"
-gem "nokogiri", "~> 1.11", ">= 1.11.4"
+gem "nokogiri", "~> 1.12", ">= 1.12.5"
